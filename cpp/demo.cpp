@@ -9,6 +9,7 @@
 #define HEIGHT 768
 #define MULTISAMPLING 16
 #define FPS 0
+#define DEBUG 1
 
 // GLEW (http://glew.sourceforge.net/)
 #define GLEW_STATIC
@@ -45,6 +46,12 @@
 // Skinning code
 #include "skinning.h"
 
+// Debug log callback
+#if DEBUG
+static void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const * message, void const * userParam) {
+  std::cout << message << std::endl;
+}
+#endif
 
 // Program entry point
 int main(int argc, char** argv) {
@@ -109,6 +116,9 @@ int main(int argc, char** argv) {
   // Create OpenGL context
   glfwInit();
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+#if DEBUG
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+#endif
 #if MULTISAMPLING
   glfwWindowHint(GLFW_SAMPLES, MULTISAMPLING);
 #endif
@@ -118,6 +128,15 @@ int main(int argc, char** argv) {
   glfwGetFramebufferSize(window, &width, &height);
   glewExperimental = GL_TRUE;
   glewInit();
+  
+  // Enable debug callback
+#if DEBUG
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(debugCallback, nullptr);
+  glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+  glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#endif
   
   // Create vertex buffer
   GLuint vertices;
